@@ -1,16 +1,4 @@
-    // 切换注册密码可见性
-    function toggleRegPwd(id, btn){
-      const input = document.getElementById(id);
-      if(!input) return;
-      if(input.type === 'password'){
-        input.type = 'text';
-        btn.querySelector('i').className = 'fa fa-eye-slash';
-      }else{
-        input.type = 'password';
-        btn.querySelector('i').className = 'fa fa-eye';
-      }
-    }
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
@@ -32,41 +20,39 @@
     }
   </script>
   <style>
-    @layer utilities {
-      .nav-active {
-        background-color: rgba(22, 93, 255, 0.2);
-        color: #165dff;
-        border-left: 4px solid #165dff;
-      }
-      .upload-box {
-        border: 2px dashed #d1d5db;
-        border-radius: 0.5rem;
-        padding: 1rem;
-        text-align: center;
-        cursor: pointer;
-        background-color: #f9fafb;
-        transition: border-color 0.2s;
-      }
-      .upload-box:hover {
-        border-color: #165dff;
-      }
-      .modal-backdrop {
-        position: fixed;
-        inset: 0;
-        background-color: rgba(0, 0, 0, 0.5);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 50;
-      }
-      .modal-backdrop.hidden {
-        display: none;
-      }
-      /* 自定义滚动条 */
-      ::-webkit-scrollbar { width: 6px; height: 6px; }
-      ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
-      ::-webkit-scrollbar-track { background: transparent; }
+    .nav-active {
+      background-color: rgba(22, 93, 255, 0.2);
+      color: #165dff;
+      border-left: 4px solid #165dff;
     }
+    .upload-box {
+      border: 2px dashed #d1d5db;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      text-align: center;
+      cursor: pointer;
+      background-color: #f9fafb;
+      transition: border-color 0.2s;
+    }
+    .upload-box:hover {
+      border-color: #165dff;
+    }
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+    }
+    .modal-backdrop.hidden {
+      display: none;
+    }
+    /* 自定义滚动条 */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+    ::-webkit-scrollbar-track { background: transparent; }
     :root{
       --app-bg: #F8FAFC;
       --app-text: #0f172a;
@@ -94,6 +80,9 @@
   </style>
 </head>
 <body id="appBody" class="h-screen overflow-hidden" style="background-color:var(--app-bg); color:var(--app-text);">
+  <div id="mobileMenu" class="md:hidden fixed top-4 left-4 z-50 p-2 bg-primary text-white rounded cursor-pointer" onclick="toggleSidebar()">
+    <i class="fa fa-bars"></i>
+  </div>
   <div id="loginModal" class="fixed inset-0 bg-sidebar flex items-center justify-center z-[999]">
     <div class="modal-bg p-8 rounded-2xl shadow-2xl w-[400px]">
       <h2 class="text-2xl font-bold text-center mb-6 text-primary">
@@ -146,7 +135,7 @@
     </div>
   </div>
 
-  <div id="sidebar" class="w-64 bg-sidebar text-white h-full fixed left-0 top-0 p-4 flex flex-col hidden">
+  <div id="sidebar" class="w-64 bg-sidebar text-white h-full fixed left-0 top-0 p-4 flex flex-col hidden md:flex">
     <div class="flex items-center justify-between mb-6 border-b border-gray-600 pb-2">
       <h1 class="text-[20px] font-bold text-left py-2"><i class="fa fa-cube mr-2"></i>AI创作矩阵</h1>
       <button id="themeToggle" onclick="toggleTheme()" class="p-2 rounded hover:bg-white/10 theme-text">
@@ -172,7 +161,7 @@
     </div>
   </div>
 
- <div id="mainContent" class="ml-64 flex-1 overflow-y-auto p-6 hidden h-screen">
+ <div id="mainContent" class="ml-0 md:ml-64 flex-1 overflow-y-auto p-6 hidden h-screen">
     
     <div id="chat-page" class="page block">
       <div class="flex justify-between items-center mb-6">
@@ -298,9 +287,9 @@
               <img id="bigImage" class="max-h-full max-w-full object-contain hidden" src="">
             </div>
             <div class="flex gap-2 mt-4">
-              <button class="px-4 py-2 bg-primary text-white rounded text-sm hover:bg-blue-600 transition"><i class="fa fa-download mr-1"></i>下载</button>
-              <button class="px-4 py-2 border border-gray-300 text-gray-700 rounded text-sm hover:bg-gray-50 transition"><i class="fa fa-scissors mr-1"></i>局部重绘</button>
-              <button class="px-4 py-2 border border-gray-300 text-gray-700 rounded text-sm hover:bg-gray-50 transition"><i class="fa fa-expand mr-1"></i>超清放大</button>
+              <button onclick="downloadImage()" class="px-4 py-2 bg-primary text-white rounded text-sm hover:bg-blue-600 transition"><i class="fa fa-download mr-1"></i>下载</button>
+              <button onclick="showInpaintModal()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded text-sm hover:bg-gray-50 transition"><i class="fa fa-scissors mr-1"></i>局部重绘</button>
+              <button onclick="showCropModal()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded text-sm hover:bg-gray-50 transition"><i class="fa fa-crop mr-1"></i>自由裁切</button>
             </div>
           </div>
 
@@ -310,6 +299,166 @@
               <span class="text-xs text-gray-400 font-normal mt-1">仅展示本次会话记录</span>
             </h3>
             <div id="generateQueue" class="grid grid-cols-5 gap-2 min-h-[100px]"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 局部重绘模态窗 -->
+    <div id="inpaintModal" class="modal-backdrop hidden" onclick="if(event.target === this) hideInpaintModal()">
+      <div class="modal-bg rounded-2xl shadow-2xl w-[90%] h-[90vh] max-w-4xl flex flex-col">
+        <div class="flex justify-between items-center p-6 border-b theme-border">
+          <h2 class="text-2xl font-bold"><i class="fa fa-scissors mr-2"></i>局部重绘</h2>
+          <button onclick="hideInpaintModal()" class="text-2xl cursor-pointer">&times;</button>
+        </div>
+        
+        <div class="flex-1 overflow-y-auto p-6 flex gap-6">
+          <!-- 左侧：画布区域 -->
+          <div class="flex-1 flex flex-col">
+            <h3 class="font-bold mb-3">图像标注与涂抹</h3>
+            <div class="flex-1 bg-gray-50 rounded-lg border-2 border-gray-200 relative overflow-hidden flex items-center justify-center">
+              <canvas id="inpaintCanvas" class="max-h-full max-w-full cursor-crosshair" style="border: 1px solid #e5e7eb;"></canvas>
+              <div class="absolute top-3 right-3 flex gap-2">
+                <button onclick="switchInpaintTool('brush')" id="brushBtn" class="px-3 py-2 bg-primary text-white rounded text-sm hover:bg-blue-600 transition"><i class="fa fa-paint-brush mr-1"></i>涂抹</button>
+                <button onclick="switchInpaintTool('text')" id="textBtn" class="px-3 py-2 bg-gray-400 text-white rounded text-sm hover:bg-gray-500 transition"><i class="fa fa-font mr-1"></i>文字</button>
+                <button onclick="clearInpaintCanvas()" class="px-3 py-2 bg-red-500 text-white rounded text-sm hover:bg-red-600 transition"><i class="fa fa-trash mr-1"></i>清除</button>
+              </div>
+            </div>
+            
+            <!-- 涂抹工具参数 -->
+            <div id="brushSettings" class="mt-4 p-3 bg-gray-50 rounded-lg space-y-2">
+              <div class="flex items-center gap-2">
+                <label class="text-sm font-bold w-20">笔刷大小</label>
+                <input type="range" id="brushSize" min="5" max="50" value="10" class="flex-1" oninput="updateBrushPreview()">
+                <span id="brushSizeVal" class="text-sm w-10">10px</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <label class="text-sm font-bold w-20">颜色</label>
+                <input type="color" id="brushColor" value="#ff0000" class="w-12 h-8 rounded cursor-pointer">
+              </div>
+              <div class="flex items-center gap-2">
+                <label class="text-sm font-bold w-20">透明度</label>
+                <input type="range" id="brushOpacity" min="0.1" max="1" step="0.1" value="0.5" class="flex-1">
+                <span id="brushOpacityVal" class="text-sm w-10">50%</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 右侧：提示词和参数 -->
+          <div class="w-80 flex flex-col space-y-4">
+            <div>
+              <h3 class="font-bold mb-2">局部修改描述</h3>
+              <p class="text-xs text-gray-500 mb-2">描述你想在标注区域进行的修改</p>
+              <textarea id="inpaintPrompt" rows="6" class="w-full p-3 border rounded-lg focus:outline-none focus:border-primary text-sm bg-gray-50" placeholder="例如：将这部分改成蓝色背景、添加一个红花、修改人物表情等..."></textarea>
+            </div>
+            
+            <div>
+              <h3 class="font-bold mb-2">生成参数</h3>
+              <div class="space-y-2 text-sm">
+                <div>
+                  <label class="text-gray-600">修改强度</label>
+                  <input type="range" min="0.3" max="1" step="0.1" value="0.7" class="w-full">
+                </div>
+                <div>
+                  <label class="text-gray-600">保留相似度</label>
+                  <input type="range" min="0" max="1" step="0.1" value="0.5" class="w-full">
+                </div>
+              </div>
+            </div>
+            
+            <div class="flex-1"></div>
+            
+            <div class="flex gap-2">
+              <button onclick="hideInpaintModal()" class="flex-1 px-4 py-2 border border-gray-300 rounded text-sm hover:bg-gray-50 transition">取消</button>
+              <button onclick="submitInpaint()" class="flex-1 px-4 py-2 bg-primary text-white rounded text-sm hover:bg-blue-600 transition font-bold"><i class="fa fa-magic mr-1"></i>生成</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 自由裁切模态窗 -->
+    <div id="cropModal" class="modal-backdrop hidden" onclick="if(event.target === this) hideCropModal()">
+      <div class="modal-bg rounded-2xl shadow-2xl w-[90%] h-[90vh] max-w-5xl flex flex-col">
+        <div class="flex justify-between items-center p-6 border-b theme-border">
+          <h2 class="text-2xl font-bold"><i class="fa fa-crop mr-2"></i>自由裁切</h2>
+          <button onclick="hideCropModal()" class="text-2xl cursor-pointer">&times;</button>
+        </div>
+        
+        <div class="flex-1 overflow-y-auto p-6 flex gap-6">
+          <!-- 左侧：图片预览和裁切 -->
+          <div class="flex-1 flex flex-col">
+            <h3 class="font-bold mb-3">图像预览与裁切</h3>
+            <div class="flex-1 bg-gray-50 rounded-lg border-2 border-gray-200 relative overflow-auto flex items-center justify-center">
+              <div id="cropContainer" class="relative inline-block" style="position: relative;">
+                <img id="cropImage" class="max-h-full max-w-full" src="" alt="图片">
+                <div id="cropBox" class="absolute border-2 border-primary cursor-move" style="display:none; box-shadow: 0 0 0 9999px rgba(0,0,0,0.5);"></div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 右侧：裁切参数和预设 -->
+          <div class="w-96 flex flex-col space-y-4">
+            <div>
+              <h3 class="font-bold mb-3">裁切尺寸预设</h3>
+              <div class="space-y-2 text-sm">
+                <button onclick="setCropPreset(1, 1)" class="w-full px-3 py-2 bg-gray-100 hover:bg-blue-100 rounded transition text-left"><i class="fa fa-square mr-2"></i>1:1 (正方形)</button>
+                <button onclick="setCropPreset(16, 9)" class="w-full px-3 py-2 bg-gray-100 hover:bg-blue-100 rounded transition text-left"><i class="fa fa-rectangle mr-2"></i>16:9 (横屏/电脑)</button>
+                <button onclick="setCropPreset(9, 16)" class="w-full px-3 py-2 bg-gray-100 hover:bg-blue-100 rounded transition text-left"><i class="fa fa-rectangle mr-2"></i>9:16 (竖屏/手机)</button>
+                <button onclick="setCropPreset(4, 3)" class="w-full px-3 py-2 bg-gray-100 hover:bg-blue-100 rounded transition text-left"><i class="fa fa-rectangle mr-2"></i>4:3 (通用)</button>
+                <button onclick="setCropPreset(3, 2)" class="w-full px-3 py-2 bg-gray-100 hover:bg-blue-100 rounded transition text-left"><i class="fa fa-image mr-2"></i>3:2 (照片)</button>
+                <button onclick="setCropPreset(21, 9)" class="w-full px-3 py-2 bg-gray-100 hover:bg-blue-100 rounded transition text-left"><i class="fa fa-rectangle mr-2"></i>21:9 (超宽屏)</button>
+              </div>
+            </div>
+            
+            <div>
+              <h3 class="font-bold mb-2">自定义尺寸</h3>
+              <div class="space-y-2 text-sm">
+                <div class="flex gap-2">
+                  <div class="flex-1">
+                    <label class="text-gray-600 text-xs">宽度 (px)</label>
+                    <input type="number" id="cropWidth" min="100" value="400" class="w-full p-2 border rounded focus:outline-none focus:border-primary text-sm" oninput="updateCropBox()">
+                  </div>
+                  <div class="flex-1">
+                    <label class="text-gray-600 text-xs">高度 (px)</label>
+                    <input type="number" id="cropHeight" min="100" value="400" class="w-full p-2 border rounded focus:outline-none focus:border-primary text-sm" oninput="updateCropBox()">
+                  </div>
+                </div>
+                <div class="p-2 bg-blue-50 rounded text-center">
+                  <p class="text-gray-600 text-xs">当前宽高比</p>
+                  <p class="font-mono text-sm font-bold"><span id="currentRatioDisplay">1:1</span></p>
+                </div>
+                <div>
+                  <label class="text-gray-600 text-xs flex items-center gap-2">
+                    <input type="checkbox" id="cropLockRatio" checked data-ratio="1.0000" onchange="updateCropBox()">
+                    锁定宽高比
+                  </label>
+                </div>
+              </div>
+            </div>
+            
+            <div>
+              <h3 class="font-bold mb-2">位置坐标</h3>
+              <div class="space-y-2 text-sm">
+                <div class="flex gap-2">
+                  <div class="flex-1">
+                    <label class="text-gray-600 text-xs">X (px)</label>
+                    <input type="number" id="cropX" value="0" class="w-full p-2 border rounded focus:outline-none focus:border-primary text-sm" oninput="updateCropBox()">
+                  </div>
+                  <div class="flex-1">
+                    <label class="text-gray-600 text-xs">Y (px)</label>
+                    <input type="number" id="cropY" value="0" class="w-full p-2 border rounded focus:outline-none focus:border-primary text-sm" oninput="updateCropBox()">
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="flex-1"></div>
+            
+            <div class="flex gap-2">
+              <button onclick="hideCropModal()" class="flex-1 px-4 py-2 border border-gray-300 rounded text-sm hover:bg-gray-50 transition">取消</button>
+              <button onclick="submitCrop()" class="flex-1 px-4 py-2 bg-primary text-white rounded text-sm hover:bg-blue-600 transition font-bold"><i class="fa fa-check mr-1"></i>裁切</button>
+            </div>
           </div>
         </div>
       </div>
@@ -515,7 +664,7 @@
     </div>
   </div>
 
-    <script>
+  <script>
     let uploadedImages = []; // 存储上传的图片用于@调用
 
     // 主题初始化与切换
@@ -601,6 +750,19 @@
       }
     }
 
+    // 切换注册密码可见性
+    function toggleRegPwd(id, btn){
+      const input = document.getElementById(id);
+      if(!input) return;
+      if(input.type === 'password'){
+        input.type = 'text';
+        btn.querySelector('i').className = 'fa fa-eye-slash';
+      }else{
+        input.type = 'password';
+        btn.querySelector('i').className = 'fa fa-eye';
+      }
+    }
+
     // 提交注册（优先调用后端钩子；回退到本地存储）
     async function submitRegister(){
       const u = document.getElementById('regUsername').value.trim();
@@ -640,11 +802,19 @@
       if(btn) btn.disabled = false;
     }
 
-    // 回车提交支持
-    const pwdEl = document.getElementById('password');
-    const userEl = document.getElementById('username');
-    if (pwdEl) pwdEl.addEventListener('keypress', function (e) { if (e.key === 'Enter') login(); });
-    if (userEl) userEl.addEventListener('keypress', function (e) { if (e.key === 'Enter') login(); });
+    // 切换侧栏显示（移动端）
+    function toggleSidebar(){
+      const sidebar = document.getElementById('sidebar');
+      if(window.innerWidth < 768) { // md breakpoint
+        if(sidebar.classList.contains('flex')) {
+          sidebar.classList.remove('flex');
+          sidebar.classList.add('hidden');
+        } else {
+          sidebar.classList.remove('hidden');
+          sidebar.classList.add('flex');
+        }
+      }
+    }
 
     function switchPage(page, element) {
       document.querySelectorAll('.page').forEach(item => item.classList.add('hidden'));
@@ -740,6 +910,367 @@
       
       document.querySelectorAll('#generateQueue div').forEach(el => el.classList.remove('border-primary'));
       element.parentElement.classList.add('border-primary');
+    }
+
+    // 回车提交支持
+    const pwdEl = document.getElementById('password');
+    const userEl = document.getElementById('username');
+    if (pwdEl) pwdEl.addEventListener('keypress', function (e) { if (e.key === 'Enter') login(); });
+    if (userEl) userEl.addEventListener('keypress', function (e) { if (e.key === 'Enter') login(); });
+
+    // ============== 局部重绘功能 ==============
+    let inpaintCanvas, inpaintCtx;
+    let currentInpaintTool = 'brush';
+    let isDrawing = false;
+    let lastX = 0, lastY = 0;
+
+    function showInpaintModal() {
+      const bigImage = document.getElementById('bigImage');
+      if (!bigImage.src || bigImage.classList.contains('hidden')) {
+        alert('请先选择一张图片');
+        return;
+      }
+      document.getElementById('inpaintModal').classList.remove('hidden');
+      initInpaintCanvas(bigImage.src);
+    }
+
+    function hideInpaintModal() {
+      document.getElementById('inpaintModal').classList.add('hidden');
+    }
+
+    function initInpaintCanvas(imageSrc) {
+      setTimeout(() => {
+        inpaintCanvas = document.getElementById('inpaintCanvas');
+        inpaintCtx = inpaintCanvas.getContext('2d');
+        const img = new Image();
+        img.onload = function() {
+          inpaintCanvas.width = Math.min(img.width, 800);
+          inpaintCanvas.height = (inpaintCanvas.width / img.width) * img.height;
+          inpaintCtx.drawImage(img, 0, 0, inpaintCanvas.width, inpaintCanvas.height);
+          setupInpaintCanvas();
+        };
+        img.src = imageSrc;
+      }, 100);
+    }
+
+    function setupInpaintCanvas() {
+      inpaintCanvas.addEventListener('mousedown', (e) => {
+        isDrawing = true;
+        const rect = inpaintCanvas.getBoundingClientRect();
+        lastX = e.clientX - rect.left;
+        lastY = e.clientY - rect.top;
+      });
+      inpaintCanvas.addEventListener('mousemove', (e) => {
+        if (!isDrawing) return;
+        const rect = inpaintCanvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        if (currentInpaintTool === 'brush') drawBrush(lastX, lastY, x, y);
+        lastX = x;
+        lastY = y;
+      });
+      inpaintCanvas.addEventListener('mouseup', () => { isDrawing = false; });
+      inpaintCanvas.addEventListener('mouseleave', () => { isDrawing = false; });
+    }
+
+    function drawBrush(fromX, fromY, toX, toY) {
+      const size = parseInt(document.getElementById('brushSize').value);
+      const color = document.getElementById('brushColor').value;
+      const opacity = parseFloat(document.getElementById('brushOpacity').value);
+      inpaintCtx.strokeStyle = color;
+      inpaintCtx.globalAlpha = opacity;
+      inpaintCtx.lineWidth = size;
+      inpaintCtx.lineCap = 'round';
+      inpaintCtx.lineJoin = 'round';
+      inpaintCtx.beginPath();
+      inpaintCtx.moveTo(fromX, fromY);
+      inpaintCtx.lineTo(toX, toY);
+      inpaintCtx.stroke();
+      inpaintCtx.globalAlpha = 1;
+    }
+
+    function switchInpaintTool(tool) {
+      currentInpaintTool = tool;
+      document.querySelectorAll('[id$="Btn"]').forEach(btn => {
+        if (btn.id.includes('brush') || btn.id.includes('text') || btn.id.includes('rect')) {
+          btn.classList.remove('bg-primary');
+          btn.classList.add('bg-gray-400');
+        }
+      });
+      const btnId = tool === 'brush' ? 'brushBtn' : tool === 'text' ? 'textBtn' : 'rectBtn';
+      const btn = document.getElementById(btnId);
+      if (btn) {
+        btn.classList.remove('bg-gray-400');
+        btn.classList.add('bg-primary');
+      }
+      document.getElementById('brushSettings').style.display = tool === 'brush' ? 'block' : 'none';
+    }
+
+    function updateBrushPreview() {
+      const size = document.getElementById('brushSize').value;
+      document.getElementById('brushSizeVal').textContent = size + 'px';
+    }
+
+    function clearInpaintCanvas() {
+      if (confirm('确定要清除所有标注吗？')) {
+        inpaintCtx.clearRect(0, 0, inpaintCanvas.width, inpaintCanvas.height);
+        const img = new Image();
+        img.onload = function() {
+          inpaintCtx.drawImage(img, 0, 0, inpaintCanvas.width, inpaintCanvas.height);
+        };
+        img.src = document.getElementById('bigImage').src;
+      }
+    }
+
+    function submitInpaint() {
+      const prompt = document.getElementById('inpaintPrompt').value.trim();
+      if (!prompt) {
+        alert('请输入修改描述');
+        return;
+      }
+      alert('已提交局部重绘请求（需要连接到后端API）\n修改描述: ' + prompt);
+      hideInpaintModal();
+    }
+
+    // ============== 自由裁切功能 ==============
+    let cropBox, cropImage;
+    let isDraggingCrop = false;
+    let cropStartX = 0, cropStartY = 0;
+
+    function showCropModal() {
+      const bigImage = document.getElementById('bigImage');
+      if (!bigImage.src || bigImage.classList.contains('hidden')) {
+        alert('请先选择一张图片');
+        return;
+      }
+      document.getElementById('cropModal').classList.remove('hidden');
+      initCropImage(bigImage.src);
+    }
+
+    function hideCropModal() {
+      document.getElementById('cropModal').classList.add('hidden');
+    }
+
+    function initCropImage(imageSrc) {
+      cropImage = document.getElementById('cropImage');
+      cropImage.src = imageSrc;
+      cropImage.onload = function() {
+        setTimeout(() => setupCropBox(), 100);
+      };
+    }
+
+    let resizeHandle = null;
+    const MIN_CROP_SIZE = 50;
+
+    function setupCropBox() {
+      cropBox = document.getElementById('cropBox');
+      if (!cropBox) return;
+      cropBox.style.display = 'block';
+      cropBox.style.userSelect = 'none';
+      
+      // 添加尺寸显示标签
+      if (!document.getElementById('cropSizeLabel')) {
+        const label = document.createElement('div');
+        label.id = 'cropSizeLabel';
+        label.style.cssText = 'position: absolute; top: -25px; left: 0; background: rgba(0,0,0,0.8); color: white; padding: 2px 6px; border-radius: 3px; font-size: 12px; white-space: nowrap; font-family: monospace;';
+        cropBox.appendChild(label);
+      }
+      
+      // 添加调整手柄
+      const handles = ['tl', 'tm', 'tr', 'ml', 'mr', 'bl', 'bm', 'br'];
+      handles.forEach(pos => {
+        if (!document.getElementById('handle-' + pos)) {
+          const handle = document.createElement('div');
+          handle.id = 'handle-' + pos;
+          handle.style.cssText = `position: absolute; width: 8px; height: 8px; background: white; border: 2px solid #165dff; border-radius: 50%;
+            cursor: ${pos.includes('tl') || pos.includes('br') ? 'nwse' : pos.includes('tr') || pos.includes('bl') ? 'nesw' : pos.includes('m') && !pos.includes('l') && !pos.includes('r') ? 'ns' : 'ew'}-resize;`;
+          
+          let style = '';
+          if (pos === 'tl') style = 'top: -4px; left: -4px;';
+          else if (pos === 'tm') style = 'top: -4px; left: 50%; transform: translateX(-50%);';
+          else if (pos === 'tr') style = 'top: -4px; right: -4px;';
+          else if (pos === 'ml') style = 'top: 50%; left: -4px; transform: translateY(-50%);';
+          else if (pos === 'mr') style = 'top: 50%; right: -4px; transform: translateY(-50%);';
+          else if (pos === 'bl') style = 'bottom: -4px; left: -4px;';
+          else if (pos === 'bm') style = 'bottom: -4px; left: 50%; transform: translateX(-50%);';
+          else if (pos === 'br') style = 'bottom: -4px; right: -4px;';
+          
+          handle.style.cssText += style;
+          handle.addEventListener('mousedown', (e) => startResize(e, pos));
+          cropBox.appendChild(handle);
+        }
+      });
+      
+      // 移动整个裁切框
+      cropBox.addEventListener('mousedown', (e) => {
+        if (e.target === cropBox || e.target.id === 'cropSizeLabel') {
+          isDraggingCrop = true;
+          cropStartX = e.clientX - parseInt(cropBox.style.left || 0);
+          cropStartY = e.clientY - parseInt(cropBox.style.top || 0);
+        }
+      });
+      
+      document.addEventListener('mousemove', (e) => {
+        if (isDraggingCrop && resizeHandle === null) {
+          const container = document.getElementById('cropContainer');
+          const rect = container.getBoundingClientRect();
+          const x = Math.max(0, e.clientX - rect.left - cropStartX);
+          const y = Math.max(0, e.clientY - rect.top - cropStartY);
+          cropBox.style.left = x + 'px';
+          cropBox.style.top = y + 'px';
+          document.getElementById('cropX').value = Math.round(x);
+          document.getElementById('cropY').value = Math.round(y);
+        } else if (resizeHandle) {
+          performResize(e, resizeHandle);
+        }
+      });
+      
+      document.addEventListener('mouseup', () => { 
+        isDraggingCrop = false; 
+        resizeHandle = null;
+      });
+      
+      setCropPreset(1, 1);
+    }
+    
+    function startResize(e, handle) {
+      e.stopPropagation();
+      resizeHandle = handle;
+      cropStartX = e.clientX;
+      cropStartY = e.clientY;
+    }
+    
+    function performResize(e, handle) {
+      const container = document.getElementById('cropContainer');
+      const rect = container.getBoundingClientRect();
+      const deltaX = e.clientX - cropStartX;
+      const deltaY = e.clientY - cropStartY;
+      
+      let left = parseInt(cropBox.style.left || 0);
+      let top = parseInt(cropBox.style.top || 0);
+      let width = parseInt(cropBox.style.width || 400);
+      let height = parseInt(cropBox.style.height || 400);
+      const lockRatio = document.getElementById('cropLockRatio').checked;
+      const ratio = width / height;
+      
+      if (handle.includes('l')) {
+        left = Math.max(0, left + deltaX);
+        width = Math.max(MIN_CROP_SIZE, width - deltaX);
+        if (lockRatio) height = width / ratio;
+      }
+      if (handle.includes('r')) {
+        width = Math.max(MIN_CROP_SIZE, width + deltaX);
+        if (lockRatio) height = width / ratio;
+      }
+      if (handle.includes('t')) {
+        top = Math.max(0, top + deltaY);
+        height = Math.max(MIN_CROP_SIZE, height - deltaY);
+        if (lockRatio) width = height * ratio;
+      }
+      if (handle.includes('b')) {
+        height = Math.max(MIN_CROP_SIZE, height + deltaY);
+        if (lockRatio) width = height * ratio;
+      }
+      
+      cropBox.style.left = left + 'px';
+      cropBox.style.top = top + 'px';
+      cropBox.style.width = width + 'px';
+      cropBox.style.height = height + 'px';
+      
+      document.getElementById('cropX').value = Math.round(left);
+      document.getElementById('cropY').value = Math.round(top);
+      document.getElementById('cropWidth').value = Math.round(width);
+      document.getElementById('cropHeight').value = Math.round(height);
+      
+      updateCropSizeLabel();
+      
+      cropStartX = e.clientX;
+      cropStartY = e.clientY;
+    }
+    
+    function updateCropSizeLabel() {
+      const label = document.getElementById('cropSizeLabel');
+      if (label) {
+        const w = document.getElementById('cropWidth').value;
+        const h = document.getElementById('cropHeight').value;
+        label.textContent = w + ' × ' + h + ' px';
+      }
+      // 更新宽高比显示
+      const w = parseInt(document.getElementById('cropWidth').value) || 1;
+      const h = parseInt(document.getElementById('cropHeight').value) || 1;
+      const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
+      const div = gcd(w, h);
+      const ratioDisplay = document.getElementById('currentRatioDisplay');
+      if (ratioDisplay) {
+        ratioDisplay.textContent = (w / div) + ':' + (h / div);
+      }
+    }
+
+    function setCropPreset(ratioW, ratioH) {
+      const containerSize = 450;
+      let w, h;
+      if (ratioW >= ratioH) {
+        w = containerSize;
+        h = (w * ratioH) / ratioW;
+      } else {
+        h = containerSize;
+        w = (h * ratioW) / ratioH;
+      }
+      document.getElementById('cropWidth').value = Math.round(w);
+      document.getElementById('cropHeight').value = Math.round(h);
+      document.getElementById('cropX').value = 0;
+      document.getElementById('cropY').value = 0;
+      document.getElementById('cropLockRatio').checked = true;
+      // 存储当前宽高比
+      document.getElementById('cropLockRatio').dataset.ratio = (ratioW / ratioH).toFixed(4);
+      updateCropBox();
+      updateCropSizeLabel();
+    }
+
+    function updateCropBox() {
+      if (!cropBox) return;
+      const w = parseInt(document.getElementById('cropWidth').value) || 400;
+      const h = parseInt(document.getElementById('cropHeight').value) || 400;
+      const x = parseInt(document.getElementById('cropX').value) || 0;
+      const y = parseInt(document.getElementById('cropY').value) || 0;
+      const lockRatio = document.getElementById('cropLockRatio').checked;
+      
+      // 如果锁定宽高比，根据宽度调整高度
+      if (lockRatio && document.getElementById('cropLockRatio').dataset.ratio) {
+        const ratio = parseFloat(document.getElementById('cropLockRatio').dataset.ratio);
+        const newH = Math.round(w / ratio);
+        document.getElementById('cropHeight').value = newH;
+        cropBox.style.height = newH + 'px';
+      } else {
+        cropBox.style.height = h + 'px';
+      }
+      
+      cropBox.style.width = w + 'px';
+      cropBox.style.left = x + 'px';
+      cropBox.style.top = y + 'px';
+      
+      updateCropSizeLabel();
+    }
+
+    function submitCrop() {
+      const w = document.getElementById('cropWidth').value;
+      const h = document.getElementById('cropHeight').value;
+      const x = document.getElementById('cropX').value;
+      const y = document.getElementById('cropY').value;
+      alert('已提交裁切请求\n尺寸: ' + w + ' x ' + h + ' px\n位置: (' + x + ', ' + y + ')\n（需要连接到后端API）');
+      hideCropModal();
+    }
+
+    function downloadImage() {
+      const img = document.getElementById('bigImage');
+      if (!img.src || img.classList.contains('hidden')) {
+        alert('请先选择一张图片');
+        return;
+      }
+      const a = document.createElement('a');
+      a.href = img.src;
+      a.download = 'image-' + Date.now() + '.png';
+      a.click();
     }
   </script>
 </body>
