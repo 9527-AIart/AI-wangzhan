@@ -84,7 +84,7 @@
     <i class="fa fa-bars"></i>
   </div>
   <div id="loginModal" class="fixed inset-0 bg-sidebar flex items-center justify-center z-[999]">
-    <div class="modal-bg p-8 rounded-2xl shadow-2xl w-[400px]">
+    <div class="modal-bg p-6 sm:p-8 rounded-2xl shadow-2xl w-11/12 sm:w-96 md:w-[420px] max-w-md">
       <h2 class="text-2xl font-bold text-center mb-6 text-primary">
         <i class="fa fa-user-circle mr-2"></i>AI平台登录
       </h2>
@@ -108,7 +108,7 @@
 
   <!-- 注册模态窗 -->
   <div id="registerModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000] hidden">
-    <div class="modal-bg p-6 rounded-2xl shadow-2xl w-[420px]">
+    <div class="modal-bg p-6 sm:p-8 rounded-2xl shadow-2xl w-11/12 sm:w-96 md:w-[420px] max-w-md">
       <h3 class="text-lg font-bold mb-4 text-primary">注册新账号</h3>
       <div class="space-y-3">
         <div>
@@ -135,7 +135,7 @@
     </div>
   </div>
 
-  <div id="sidebar" class="w-64 bg-sidebar text-white h-full fixed left-0 top-0 p-4 flex flex-col hidden md:flex">
+  <div id="sidebar" class="w-56 sm:w-64 bg-sidebar text-white h-full fixed left-0 top-0 p-3 sm:p-4 flex flex-col hidden md:flex z-40">
     <div class="flex items-center justify-between mb-6 border-b border-gray-600 pb-2">
       <h1 class="text-[20px] font-bold text-left py-2"><i class="fa fa-cube mr-2"></i>AI创作矩阵</h1>
       <button id="themeToggle" onclick="toggleTheme()" class="p-2 rounded hover:bg-white/10 theme-text">
@@ -161,7 +161,7 @@
     </div>
   </div>
 
- <div id="mainContent" class="ml-0 md:ml-64 flex-1 overflow-y-auto p-6 hidden h-screen">
+ <div id="mainContent" class="ml-0 md:ml-64 flex-1 overflow-y-auto p-3 sm:p-4 md:p-6 hidden h-screen">
     
     <div id="chat-page" class="page block">
       <div class="flex justify-between items-center mb-6">
@@ -217,8 +217,8 @@
 
 
     <div id="image-page" class="page block">
-      <h2 class="text-2xl font-bold mb-6">AI图像生成</h2>
-      <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+      <h2 class="text-xl sm:text-2xl font-bold mb-6">AI图像生成</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
         <div class="xl:col-span-1 space-y-4">
           <div class="theme-bg p-4 rounded-xl shadow-sm theme-border">
             <h3 class="font-bold mb-3 text-gray-700">参考图 (用于垫图或@调用)</h3>
@@ -227,7 +227,7 @@
               <p class="mt-2 text-sm text-gray-500">点击上传图片</p>
               <input type="file" id="imgFileInput" multiple accept="image/*" hidden onchange="previewImages()">
             </div>
-            <div id="imagePreviewList" class="grid grid-cols-4 gap-2 mt-3"></div>
+            <div id="imagePreviewList" class="grid grid-cols-3 md:grid-cols-4 gap-2 mt-3"></div>
           </div>
 
           <div class="theme-bg p-4 rounded-xl shadow-sm theme-border relative">
@@ -237,10 +237,10 @@
             <div id="mentionMenu" class="hidden absolute z-10 w-48 theme-bg theme-border rounded-lg shadow-xl max-h-40 overflow-y-auto mt-1">
               </div>
 
-            <div class="flex gap-2 mt-2">
-                <button onclick="autoPrompt()" class="flex-1 bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600 transition">
+            <div class="flex flex-col sm:flex-row gap-2 mt-2">
+                <button onclick="autoPrompt()" class="flex-1 bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600 transition text-sm">
                 <i class="fa fa-magic mr-1"></i>AI反推
-                <button onclick="promptToJson()" class="flex-1 bg-green-500 text-white p-2 rounded-lg hover:bg-green-600 transition">
+                <button onclick="promptToJson()" class="flex-1 bg-green-500 text-white p-2 rounded-lg hover:bg-green-600 transition text-sm">
                 <i class="fa fa-code mr-1"></i>转JSON
 
               <button class="flex-1 text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded transition"><i class="fa fa-magic mr-1"></i>AI优化</button>
@@ -279,17 +279,17 @@
           </div>
         </div>
 
-        <div class="xl:col-span-2 space-y-4">
+        <div class="md:col-span-2 space-y-4 order-last md:order-none">
           <div class="theme-bg p-4 rounded-xl shadow-sm theme-border">
             <h3 class="font-bold mb-3 text-gray-700">大图预览</h3>
-            <div id="bigPreview" class="h-[400px] bg-gray-50 rounded-lg flex items-center justify-center border border-gray-100 relative">
+            <div id="bigPreview" class="h-[250px] sm:h-[300px] md:h-[400px] bg-gray-50 rounded-lg flex items-center justify-center border border-gray-100 relative">
               <span id="bigPreviewText" class="text-gray-400">选择队列图片以预览大图</span>
               <img id="bigImage" class="max-h-full max-w-full object-contain hidden" src="">
             </div>
-            <div class="flex gap-2 mt-4">
-              <button onclick="downloadImage()" class="px-4 py-2 bg-primary text-white rounded text-sm hover:bg-blue-600 transition"><i class="fa fa-download mr-1"></i>下载</button>
-              <button onclick="showInpaintModal()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded text-sm hover:bg-gray-50 transition"><i class="fa fa-scissors mr-1"></i>局部重绘</button>
-              <button onclick="showCropModal()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded text-sm hover:bg-gray-50 transition"><i class="fa fa-crop mr-1"></i>自由裁切</button>
+            <div class="flex gap-1 sm:gap-2 mt-4 flex-wrap">
+              <button onclick="downloadImage()" class="px-2 sm:px-4 py-2 bg-primary text-white rounded text-xs sm:text-sm hover:bg-blue-600 transition flex-1 sm:flex-none"><i class="fa fa-download mr-1"></i>下载</button>
+              <button onclick="showInpaintModal()" class="px-2 sm:px-4 py-2 border border-gray-300 text-gray-700 rounded text-xs sm:text-sm hover:bg-gray-50 transition flex-1 sm:flex-none"><i class="fa fa-scissors mr-1"></i>局部重绘</button>
+              <button onclick="showCropModal()" class="px-2 sm:px-4 py-2 border border-gray-300 text-gray-700 rounded text-xs sm:text-sm hover:bg-gray-50 transition flex-1 sm:flex-none"><i class="fa fa-crop mr-1"></i>自由裁切</button>
             </div>
           </div>
 
@@ -298,7 +298,7 @@
               <span>生成队列</span>
               <span class="text-xs text-gray-400 font-normal mt-1">仅展示本次会话记录</span>
             </h3>
-            <div id="generateQueue" class="grid grid-cols-5 gap-2 min-h-[100px]"></div>
+            <div id="generateQueue" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 min-h-[100px]"></div>
           </div>
         </div>
       </div>
@@ -306,13 +306,13 @@
 
     <!-- 局部重绘模态窗 -->
     <div id="inpaintModal" class="modal-backdrop hidden" onclick="if(event.target === this) hideInpaintModal()">
-      <div class="modal-bg rounded-2xl shadow-2xl w-[90%] h-[90vh] max-w-4xl flex flex-col">
-        <div class="flex justify-between items-center p-6 border-b theme-border">
-          <h2 class="text-2xl font-bold"><i class="fa fa-scissors mr-2"></i>局部重绘</h2>
-          <button onclick="hideInpaintModal()" class="text-2xl cursor-pointer">&times;</button>
+      <div class="modal-bg rounded-2xl shadow-2xl w-11/12 sm:w-3/4 md:w-[90%] h-5/6 sm:h-[85vh] md:h-[90vh] max-w-4xl flex flex-col">
+        <div class="flex justify-between items-center p-4 sm:p-6 border-b theme-border">
+          <h2 class="text-lg sm:text-2xl font-bold"><i class="fa fa-scissors mr-2"></i>局部重绘</h2>
+          <button onclick="hideInpaintModal()" class="text-xl sm:text-2xl cursor-pointer">&times;</button>
         </div>
         
-        <div class="flex-1 overflow-y-auto p-6 flex gap-6">
+        <div class="flex-1 overflow-y-auto p-3 sm:p-6 flex flex-col md:flex-row gap-4 md:gap-6">
           <!-- 左侧：画布区域 -->
           <div class="flex-1 flex flex-col">
             <h3 class="font-bold mb-3">图像标注与涂抹</h3>
@@ -345,7 +345,7 @@
           </div>
           
           <!-- 右侧：提示词和参数 -->
-          <div class="w-80 flex flex-col space-y-4">
+          <div class="w-full md:w-80 flex flex-col space-y-4">
             <div>
               <h3 class="font-bold mb-2">局部修改描述</h3>
               <p class="text-xs text-gray-500 mb-2">描述你想在标注区域进行的修改</p>
@@ -379,13 +379,13 @@
 
     <!-- 自由裁切模态窗 -->
     <div id="cropModal" class="modal-backdrop hidden" onclick="if(event.target === this) hideCropModal()">
-      <div class="modal-bg rounded-2xl shadow-2xl w-[90%] h-[90vh] max-w-5xl flex flex-col">
-        <div class="flex justify-between items-center p-6 border-b theme-border">
-          <h2 class="text-2xl font-bold"><i class="fa fa-crop mr-2"></i>自由裁切</h2>
+      <div class="modal-bg rounded-2xl shadow-2xl w-11/12 sm:w-4/5 md:w-[90%] h-5/6 sm:h-[85vh] md:h-[90vh] max-w-5xl flex flex-col">
+        <div class="flex justify-between items-center p-4 sm:p-6 border-b theme-border">
+          <h2 class="text-lg sm:text-2xl font-bold"><i class="fa fa-crop mr-2"></i>自由裁切</h2>
           <button onclick="hideCropModal()" class="text-2xl cursor-pointer">&times;</button>
         </div>
         
-        <div class="flex-1 overflow-y-auto p-6 flex gap-6">
+        <div class="flex-1 overflow-y-auto p-3 sm:p-6 flex flex-col md:flex-row gap-4 md:gap-6">
           <!-- 左侧：图片预览和裁切 -->
           <div class="flex-1 flex flex-col">
             <h3 class="font-bold mb-3">图像预览与裁切</h3>
@@ -398,7 +398,7 @@
           </div>
           
           <!-- 右侧：裁切参数和预设 -->
-          <div class="w-96 flex flex-col space-y-4">
+          <div class="w-full md:w-96 flex flex-col space-y-4">
             <div>
               <h3 class="font-bold mb-3">裁切尺寸预设</h3>
               <div class="space-y-2 text-sm">
