@@ -1,0 +1,746 @@
+    // 切换注册密码可见性
+    function toggleRegPwd(id, btn){
+      const input = document.getElementById(id);
+      if(!input) return;
+      if(input.type === 'password'){
+        input.type = 'text';
+        btn.querySelector('i').className = 'fa fa-eye-slash';
+      }else{
+        input.type = 'password';
+        btn.querySelector('i').className = 'fa fa-eye';
+      }
+    }
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI全能生成平台</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#165DFF',
+            sidebar: '#1E293B',
+            content: '#F8FAFC'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @layer utilities {
+      .nav-active {
+        background-color: rgba(22, 93, 255, 0.2);
+        color: #165dff;
+        border-left: 4px solid #165dff;
+      }
+      .upload-box {
+        border: 2px dashed #d1d5db;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        text-align: center;
+        cursor: pointer;
+        background-color: #f9fafb;
+        transition: border-color 0.2s;
+      }
+      .upload-box:hover {
+        border-color: #165dff;
+      }
+      .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 50;
+      }
+      .modal-backdrop.hidden {
+        display: none;
+      }
+      /* 自定义滚动条 */
+      ::-webkit-scrollbar { width: 6px; height: 6px; }
+      ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+    }
+    :root{
+      --app-bg: #F8FAFC;
+      --app-text: #0f172a;
+      --icon-color: #1E293B;
+    }
+    body{ background-color:var(--app-bg); color:var(--app-text); }
+    body.theme-light{ --app-bg: #ffffff; --app-text: #0f172a; --icon-color: #1E293B; }
+    body.theme-dark{ --app-bg: #000000; --app-text: #ffffff; --icon-color: #FFD54F; }
+    body.theme-light .theme-bg { background-color: white; color: #0f172a; }
+    body.theme-dark .theme-bg { background-color: #1e293b; color: #ffffff; }
+    body.theme-light .theme-border { border-color: #e5e7eb; }
+    body.theme-dark .theme-border { border-color: #4b5563; }
+    body.theme-light .modal-bg { background-color: white; color: #0f172a; }
+    body.theme-dark .modal-bg { background-color: #1e293b; color: #ffffff; }
+    body.theme-light input { background-color: white; color: #0f172a; border-color: #d1d5db; }
+    body.theme-dark input { background-color: #374151; color: #ffffff; border-color: #6b7280; }
+    body.theme-light input:focus { border-color: #165dff; }
+    body.theme-dark input:focus { border-color: #165dff; }
+    body.theme-light button { background-color: #f3f4f6; color: #374151; }
+    body.theme-dark button { background-color: #4b5563; color: #ffffff; }
+    body.theme-light .theme-text { color: #0f172a; }
+    body.theme-dark .theme-text { color: #ffffff; }
+    body.theme-dark .text-gray-700 { color: #ffffff; }
+    body.theme-dark .text-gray-400 { color: #cccccc; }
+  </style>
+</head>
+<body id="appBody" class="h-screen overflow-hidden" style="background-color:var(--app-bg); color:var(--app-text);">
+  <div id="loginModal" class="fixed inset-0 bg-sidebar flex items-center justify-center z-[999]">
+    <div class="modal-bg p-8 rounded-2xl shadow-2xl w-[400px]">
+      <h2 class="text-2xl font-bold text-center mb-6 text-primary">
+        <i class="fa fa-user-circle mr-2"></i>AI平台登录
+      </h2>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium mb-1">账号</label>
+          <input id="username" type="text" class="w-full p-3 border rounded-lg focus:outline-none focus:border-primary" placeholder="请输入账号">
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">密码</label>
+          <input id="password" type="password" class="w-full p-3 border rounded-lg focus:outline-none focus:border-primary" placeholder="请输入密码">
+        </div>
+        <div id="loginError" class="text-sm text-red-500 mt-1 hidden"></div>
+        <div class="flex gap-2">
+          <button onclick="login()" id="loginBtn" class="flex-1 bg-primary text-white p-3 rounded-lg font-bold hover:bg-blue-600 transition">登录系统</button>
+          <button onclick="showRegisterModal()" id="registerBtn" class="flex-0 px-4 bg-white text-primary border border-primary rounded-lg font-medium hover:bg-gray-50 transition">注册</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 注册模态窗 -->
+  <div id="registerModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000] hidden">
+    <div class="modal-bg p-6 rounded-2xl shadow-2xl w-[420px]">
+      <h3 class="text-lg font-bold mb-4 text-primary">注册新账号</h3>
+      <div class="space-y-3">
+        <div>
+          <label class="block text-sm mb-1">用户名</label>
+          <input id="regUsername" type="text" class="w-full p-3 border rounded-lg focus:outline-none focus:border-primary" placeholder="请输入用户名" maxlength="32" autocomplete="username">
+        </div>
+        <div class="relative">
+          <label class="block text-sm mb-1">密码</label>
+          <input id="regPassword" type="password" class="w-full p-3 border rounded-lg focus:outline-none focus:border-primary pr-10" placeholder="请输入密码" maxlength="32" autocomplete="new-password">
+          <button type="button" onclick="toggleRegPwd('regPassword', this)" class="absolute right-2 top-9 text-gray-400 hover:text-primary"><i class="fa fa-eye"></i></button>
+        </div>
+        <div class="relative">
+          <label class="block text-sm mb-1">确认密码</label>
+          <input id="regPassword2" type="password" class="w-full p-3 border rounded-lg focus:outline-none focus:border-primary pr-10" placeholder="请再次输入密码" maxlength="32" autocomplete="new-password">
+          <button type="button" onclick="toggleRegPwd('regPassword2', this)" class="absolute right-2 top-9 text-gray-400 hover:text-primary"><i class="fa fa-eye"></i></button>
+        </div>
+        <div id="regError" class="text-sm text-red-500 hidden"></div>
+        <div id="regLoading" class="text-sm text-primary hidden"><i class="fa fa-spinner fa-spin mr-1"></i>正在注册...</div>
+        <div class="flex gap-2 pt-2">
+          <button onclick="submitRegister()" id="regSubmitBtn" class="flex-1 bg-primary text-white p-3 rounded-lg font-bold">注册并登录</button>
+          <button onclick="hideRegisterModal()" class="px-4 bg-gray-100 rounded-lg">取消</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="sidebar" class="w-64 bg-sidebar text-white h-full fixed left-0 top-0 p-4 flex flex-col hidden">
+    <div class="flex items-center justify-between mb-6 border-b border-gray-600 pb-2">
+      <h1 class="text-[20px] font-bold text-left py-2"><i class="fa fa-cube mr-2"></i>AI创作矩阵</h1>
+      <button id="themeToggle" onclick="toggleTheme()" class="p-2 rounded hover:bg-white/10 theme-text">
+        明暗
+      </button>
+    </div>
+    <div class="flex-1 space-y-2">
+      <div onclick="switchPage('chat', this)" class="nav-item px-4 py-3 rounded cursor-pointer flex items-center">
+        <i class="fa fa-comments w-6"></i>AI问答
+      </div>
+      <div onclick="switchPage('image', this)" class="nav-item px-4 py-3 rounded cursor-pointer flex items-center nav-active">
+        <i class="fa fa-image w-6"></i>AI生图
+      </div>
+      <div onclick="switchPage('video', this)" class="nav-item px-4 py-3 rounded cursor-pointer flex items-center">
+        <i class="fa fa-video-camera w-6"></i>AI生视频
+      </div>
+      <div onclick="switchPage('audio', this)" class="nav-item px-4 py-3 rounded cursor-pointer flex items-center">
+        <i class="fa fa-music w-6"></i>AI生音频
+      </div>
+      <div onclick="switchPage('other', this)" class="nav-item px-4 py-3 rounded cursor-pointer flex items-center">
+        <i class="fa fa-th-large w-6"></i>其他功能
+      </div>
+    </div>
+  </div>
+
+ <div id="mainContent" class="ml-64 flex-1 overflow-y-auto p-6 hidden h-screen">
+    
+    <div id="chat-page" class="page block">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold"><i class="fa fa-comments mr-2"></i>AI智能问答</h2>
+        <select id="llmModelSelect" class="p-2 border rounded-lg bg-white text-sm focus:outline-none focus:border-primary min-w-[200px] shadow-sm">
+          <option value="">(选择大模型，暂无连接API)</option>
+          <option value="gpt4">GPT-4o (推荐)</option>
+          <option value="claude3">Claude 3.5 Sonnet</option>
+          <option value="gemini">Gemini 1.5 Pro</option>
+          <option value="qwen">通义千问 Max</option>
+        </select>
+      </div>
+
+      <div class="theme-bg rounded-xl shadow p-4 h-[calc(100vh-140px)] flex flex-col relative">
+        <div class="flex gap-4 border-b pb-2 mb-4">
+          <span id="tab-general" class="font-bold text-primary border-b-2 border-primary pb-2 cursor-pointer transition" onclick="switchChatMode('general')">通用问答</span>
+          <span id="tab-knowledge" class="font-bold text-gray-500 pb-2 cursor-pointer hover:text-primary transition" onclick="switchChatMode('knowledge')">基础知识问答 (知识库)</span>
+        </div>
+
+        <div id="knowledgeUploadArea" class="hidden mb-4 p-4 border-2 border-dashed border-gray-300 rounded-lg text-center bg-gray-50 transition-all">
+          <i class="fa fa-database text-2xl text-primary mb-2"></i>
+          <p class="text-sm text-gray-600 font-bold">构建当前对话的基础知识库</p>
+          <p class="text-xs text-gray-400 mt-1 mb-3">支持上传 TXT, PDF, Word 等格式文档，AI 将基于您上传的内容进行精准回答</p>
+          <button class="px-4 py-2 theme-bg theme-border text-sm text-gray-700 rounded shadow-sm hover:bg-gray-50 transition" onclick="document.getElementById('kbFileInput').click()">
+            <i class="fa fa-upload mr-1"></i> 选择本地文件
+          </button>
+          <input type="file" id="kbFileInput" class="hidden" multiple onchange="handleKbUpload()">
+          <div id="kbFileList" class="mt-3 flex flex-wrap gap-2 justify-center"></div>
+        </div>
+
+        <div id="chatBox" class="flex-1 overflow-y-auto p-4 border-b mb-4 flex flex-col gap-4 bg-gray-50/50 rounded-lg">
+          <div class="p-4 theme-bg theme-border shadow-sm rounded-lg rounded-tl-none w-fit max-w-[80%] text-sm text-gray-700">
+            你好！请在上方选择大模型，或在下方输入您的问题。如果需要基于特定文档提问，请切换到“基础知识问答”模式并上传文件。
+          </div>
+        </div>
+        
+        <div id="chatFilePreview" class="flex gap-2 mb-2 empty:hidden"></div>
+
+        <div class="flex gap-2 items-center relative">
+          <button class="w-12 h-12 flex items-center justify-center bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition shrink-0" onclick="document.getElementById('chatFileInput').click()" title="上传文档/图片附件">
+            <i class="fa fa-paperclip text-lg"></i>
+          </button>
+          <input type="file" id="chatFileInput" class="hidden" onchange="handleChatFileUpload()">
+          
+          <input type="text" id="chatInput" placeholder="输入问题..." class="flex-1 p-3 h-12 border rounded-lg focus:outline-none focus:border-primary text-sm shadow-inner bg-gray-50 focus:bg-white transition" onkeypress="if(event.key === 'Enter') sendMessage()">
+          
+          <button onclick="sendMessage()" class="bg-primary text-white px-6 h-12 rounded-lg font-bold hover:bg-blue-600 transition shrink-0 shadow-lg shadow-primary/30">
+            <i class="fa fa-send mr-1"></i>发送
+          </button>
+        </div>
+      </div>
+    </div>
+
+
+    <div id="image-page" class="page block">
+      <h2 class="text-2xl font-bold mb-6">AI图像生成</h2>
+      <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <div class="xl:col-span-1 space-y-4">
+          <div class="theme-bg p-4 rounded-xl shadow-sm theme-border">
+            <h3 class="font-bold mb-3 text-gray-700">参考图 (用于垫图或@调用)</h3>
+            <div class="upload-box" onclick="document.getElementById('imgFileInput').click()">
+              <i class="fa fa-plus text-xl text-gray-400"></i>
+              <p class="mt-2 text-sm text-gray-500">点击上传图片</p>
+              <input type="file" id="imgFileInput" multiple accept="image/*" hidden onchange="previewImages()">
+            </div>
+            <div id="imagePreviewList" class="grid grid-cols-4 gap-2 mt-3"></div>
+          </div>
+
+          <div class="theme-bg p-4 rounded-xl shadow-sm theme-border relative">
+            <h3 class="font-bold mb-3 text-gray-700">提示词</h3>
+            <textarea id="promptInput" rows="4" class="w-full p-3 border rounded-lg focus:outline-none focus:border-primary text-sm bg-gray-50" placeholder="输入画面描述，输入 @ 调用上方图片..."></textarea>
+            
+            <div id="mentionMenu" class="hidden absolute z-10 w-48 theme-bg theme-border rounded-lg shadow-xl max-h-40 overflow-y-auto mt-1">
+              </div>
+
+            <div class="flex gap-2 mt-2">
+                <button onclick="autoPrompt()" class="flex-1 bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600 transition">
+                <i class="fa fa-magic mr-1"></i>AI反推
+                <button onclick="promptToJson()" class="flex-1 bg-green-500 text-white p-2 rounded-lg hover:bg-green-600 transition">
+                <i class="fa fa-code mr-1"></i>转JSON
+
+              <button class="flex-1 text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded transition"><i class="fa fa-magic mr-1"></i>AI优化</button>
+              <button class="flex-1 text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded transition"><i class="fa fa-language mr-1"></i>中英互译</button>
+            </div>
+          </div>
+
+          <div class="theme-bg p-4 rounded-xl shadow-sm theme-border">
+            <h3 class="font-bold mb-3 text-gray-700">参数设置</h3>
+            <div class="space-y-4 text-sm">
+              <div>
+                <label class="block text-gray-500 mb-1">选择模型</label>
+                <select id="apiModelSelect" class="w-full p-2 border rounded-lg bg-gray-50 focus:outline-none focus:border-primary">
+                  <option value="">(暂无连接API，等待后续接入)</option>
+                </select>
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block text-gray-500 mb-1">生成比例</label>
+                  <select class="w-full p-2 border rounded-lg bg-gray-50">
+                    <option>1:1 (正方形)</option>
+                    <option>16:9 (电脑横屏)</option>
+                    <option>9:16 (手机竖屏)</option>
+                    <option>4:3 (通用)</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-gray-500 mb-1">生成数量 (1-10)</label>
+                  <input type="number" id="genCount" min="1" max="10" value="1" class="w-full p-2 border rounded-lg bg-gray-50 focus:outline-none focus:border-primary">
+                </div>
+              </div>
+              <button onclick="startGenerate()" class="w-full bg-primary text-white p-3 rounded-lg font-bold hover:bg-blue-600 transition shadow-lg shadow-primary/30 mt-2">
+                生成图像
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="xl:col-span-2 space-y-4">
+          <div class="theme-bg p-4 rounded-xl shadow-sm theme-border">
+            <h3 class="font-bold mb-3 text-gray-700">大图预览</h3>
+            <div id="bigPreview" class="h-[400px] bg-gray-50 rounded-lg flex items-center justify-center border border-gray-100 relative">
+              <span id="bigPreviewText" class="text-gray-400">选择队列图片以预览大图</span>
+              <img id="bigImage" class="max-h-full max-w-full object-contain hidden" src="">
+            </div>
+            <div class="flex gap-2 mt-4">
+              <button class="px-4 py-2 bg-primary text-white rounded text-sm hover:bg-blue-600 transition"><i class="fa fa-download mr-1"></i>下载</button>
+              <button class="px-4 py-2 border border-gray-300 text-gray-700 rounded text-sm hover:bg-gray-50 transition"><i class="fa fa-scissors mr-1"></i>局部重绘</button>
+              <button class="px-4 py-2 border border-gray-300 text-gray-700 rounded text-sm hover:bg-gray-50 transition"><i class="fa fa-expand mr-1"></i>超清放大</button>
+            </div>
+          </div>
+
+          <div class="theme-bg p-4 rounded-xl shadow-sm theme-border">
+            <h3 class="font-bold mb-3 text-gray-700 flex justify-between">
+              <span>生成队列</span>
+              <span class="text-xs text-gray-400 font-normal mt-1">仅展示本次会话记录</span>
+            </h3>
+            <div id="generateQueue" class="grid grid-cols-5 gap-2 min-h-[100px]"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="video-page" class="page hidden">
+      <h2 class="text-2xl font-bold mb-6">AI视频生成 <span class="text-xs bg-gradient-to-r from-purple-500 to-indigo-500 text-white px-2 py-1 rounded ml-2">Pro</span></h2>
+      <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <div class="xl:col-span-1 space-y-4">
+          <div class="theme-bg p-4 rounded-xl shadow-sm theme-border">
+            <h3 class="font-bold mb-3 text-gray-700">视频模型选择</h3>
+            <select class="w-full p-2 border rounded-lg bg-gray-50 text-sm focus:border-primary focus:outline-none">
+              <option>Seedance 2.0 (推荐，高动态)</option>
+              <option>Seedance 1.5 (快速出图)</option>
+              <option>Sora-Base (概念演示)</option>
+            </select>
+          </div>
+
+          <div class="theme-bg p-4 rounded-xl shadow-sm theme-border">
+            <div class="flex justify-between items-center mb-3">
+              <h3 class="font-bold text-gray-700">图像参考</h3>
+              <select class="text-xs border rounded p-1 text-gray-600 bg-gray-50">
+                <option>全能参考</option>
+                <option>仅首帧</option>
+                <option>首尾帧插帧</option>
+              </select>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div class="upload-box py-6">
+                <i class="fa fa-image text-gray-400 mb-1"></i><p class="text-xs text-gray-500">上传首帧</p>
+              </div>
+              <div class="upload-box py-6">
+                <i class="fa fa-image text-gray-400 mb-1"></i><p class="text-xs text-gray-500">上传尾帧(可选)</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="theme-bg p-4 rounded-xl shadow-sm theme-border">
+            <h3 class="font-bold mb-3 text-gray-700">视频运镜与描述</h3>
+            <textarea rows="3" class="w-full p-2 border rounded-lg text-sm bg-gray-50 focus:border-primary focus:outline-none mb-3" placeholder="描述视频的主体、环境、灯光和动作..."></textarea>
+            <textarea rows="2" class="w-full p-2 border rounded-lg text-sm bg-gray-50 focus:border-red-400 focus:outline-none text-red-500" placeholder="负面提示词 (不想出现在画面中的元素)..."></textarea>
+          </div>
+
+          <div class="theme-bg p-4 rounded-xl shadow-sm theme-border">
+            <h3 class="font-bold mb-3 text-gray-700">基础参数</h3>
+            <div class="grid grid-cols-2 gap-3 text-sm">
+              <div>
+                <label class="block text-gray-500 mb-1">画面比例</label>
+                <select class="w-full p-2 border rounded bg-gray-50"><option>16:9 横屏</option><option>9:16 竖屏</option></select>
+              </div>
+              <div>
+                <label class="block text-gray-500 mb-1">视频时长</label>
+                <select class="w-full p-2 border rounded bg-gray-50"><option>5秒 (标准)</option><option>10秒 (长视频)</option></select>
+              </div>
+              <div>
+                <label class="block text-gray-500 mb-1">清晰度</label>
+                <select class="w-full p-2 border rounded bg-gray-50"><option>1080P</option><option>4K 超清</option></select>
+              </div>
+              <div>
+                <label class="block text-gray-500 mb-1">帧率</label>
+                <select class="w-full p-2 border rounded bg-gray-50"><option>30 FPS</option><option>60 FPS</option></select>
+              </div>
+            </div>
+            <button class="w-full bg-indigo-600 text-white p-3 rounded-lg font-bold hover:bg-indigo-700 transition shadow-lg mt-4">
+              <i class="fa fa-film mr-2"></i>生成视频
+            </button>
+          </div>
+        </div>
+
+        <div class="xl:col-span-2">
+          <div class="bg-gray-900 rounded-xl shadow-lg aspect-video flex flex-col items-center justify-center text-gray-500 relative overflow-hidden">
+            <i class="fa fa-play-circle text-6xl mb-2 opacity-50"></i>
+            <p>等待生成视频</p>
+            <div class="absolute bottom-4 left-4 right-4 flex justify-between items-center bg-black/50 backdrop-blur px-4 py-2 rounded-lg">
+              <span class="text-xs text-white">00:00 / 00:00</span>
+              <div class="flex gap-3 text-white">
+                <i class="fa fa-download cursor-pointer hover:text-primary"></i>
+                <i class="fa fa-expand cursor-pointer hover:text-primary"></i>
+              </div>
+            </div>
+          </div>
+          <h3 class="font-bold mt-6 mb-3">历史视频</h3>
+          <div class="grid grid-cols-3 gap-4">
+            <div class="aspect-video bg-gray-200 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 text-sm">暂无记录</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="audio-page" class="page hidden">
+      <h2 class="text-2xl font-bold mb-6">AI音频创作</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="theme-bg rounded-xl shadow-sm theme-border p-6">
+          <div class="flex gap-4 border-b pb-2 mb-4">
+            <span class="font-bold text-primary border-b-2 border-primary pb-2 cursor-pointer">文本配音 (TTS)</span>
+            <span class="font-bold text-gray-500 cursor-pointer hover:text-primary">音乐合成 (Music)</span>
+          </div>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-gray-700 font-bold mb-2">发音人音色</label>
+              <select class="w-full p-2 border rounded-lg bg-gray-50 focus:border-primary focus:outline-none">
+                <option>🎙️ 温柔女声 (适合故事阅读)</option>
+                <option>🎙️ 沉稳男声 (适合新闻播报)</option>
+                <option>🎙️ 活力童声 (适合动画配音)</option>
+                <option>+ 克隆我的声音 (需上传样本)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-gray-700 font-bold mb-2">文本内容</label>
+              <textarea rows="6" class="w-full p-3 border rounded-lg bg-gray-50 focus:border-primary focus:outline-none text-sm" placeholder="请输入需要合成语音的文本内容..."></textarea>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs text-gray-500 mb-1">语速调节 (1.0x)</label>
+                <input type="range" class="w-full" min="0.5" max="2.0" step="0.1" value="1.0">
+              </div>
+              <div>
+                <label class="block text-xs text-gray-500 mb-1">情感起伏</label>
+                <select class="w-full p-1 border rounded text-sm bg-gray-50"><option>自然平稳</option><option>激动高昂</option><option>悲伤低沉</option></select>
+              </div>
+            </div>
+            <button class="w-full bg-emerald-500 text-white p-3 rounded-lg font-bold hover:bg-emerald-600 transition">
+              <i class="fa fa-headphones mr-2"></i>开始合成
+            </button>
+          </div>
+        </div>
+        <div>
+          <div class="theme-bg rounded-xl shadow-sm theme-border p-6 h-full">
+            <h3 class="font-bold mb-4 text-gray-700">音频库</h3>
+            <div class="text-center text-gray-400 py-20 bg-gray-50 rounded-lg border border-dashed">
+              <i class="fa fa-music text-4xl mb-3"></i>
+              <p>暂无生成的音频</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="other-page" class="page hidden">
+      <h2 class="text-2xl font-bold mb-6">AI实用工具箱</h2>
+      
+      <div class="mb-8">
+        <h3 class="text-lg font-bold mb-4 text-gray-600 border-l-4 border-primary pl-2">图像处理工具</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          <div class="theme-bg p-4 rounded-xl shadow-sm theme-border text-center hover:shadow-md cursor-pointer transition hover:-translate-y-1">
+            <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-3 text-xl"><i class="fa fa-eraser"></i></div>
+            <h4 class="font-bold text-sm">一键抠图</h4>
+            <p class="text-xs text-gray-400 mt-1">智能去除背景</p>
+          </div>
+          <div class="theme-bg p-4 rounded-xl shadow-sm theme-border text-center hover:shadow-md cursor-pointer transition hover:-translate-y-1">
+            <div class="w-12 h-12 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mx-auto mb-3 text-xl"><i class="fa fa-picture-o"></i></div>
+            <h4 class="font-bold text-sm">背景替换</h4>
+            <p class="text-xs text-gray-400 mt-1">无缝融合新场景</p>
+          </div>
+          <div class="theme-bg p-4 rounded-xl shadow-sm theme-border text-center hover:shadow-md cursor-pointer transition hover:-translate-y-1">
+            <div class="w-12 h-12 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mx-auto mb-3 text-xl"><i class="fa fa-magic"></i></div>
+            <h4 class="font-bold text-sm">画质提升</h4>
+            <p class="text-xs text-gray-400 mt-1">模糊老照片修复</p>
+          </div>
+          <div class="theme-bg p-4 rounded-xl shadow-sm theme-border text-center hover:shadow-md cursor-pointer transition hover:-translate-y-1">
+            <div class="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-3 text-xl"><i class="fa fa-crop"></i></div>
+            <h4 class="font-bold text-sm">尺寸扩展</h4>
+            <p class="text-xs text-gray-400 mt-1">AI智能扩图</p>
+          </div>
+          <div class="theme-bg p-4 rounded-xl shadow-sm theme-border text-center hover:shadow-md cursor-pointer transition hover:-translate-y-1">
+            <div class="w-12 h-12 bg-teal-100 text-teal-600 rounded-full flex items-center justify-center mx-auto mb-3 text-xl"><i class="fa fa-search"></i></div>
+            <h4 class="font-bold text-sm">以图搜图</h4>
+            <p class="text-xs text-gray-400 mt-1">全网溯源找图</p>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="text-lg font-bold mb-4 text-gray-600 border-l-4 border-indigo-500 pl-2">文本与数据处理</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          <div class="theme-bg p-4 rounded-xl shadow-sm theme-border text-center hover:shadow-md cursor-pointer transition hover:-translate-y-1">
+            <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-3 text-xl"><i class="fa fa-font"></i></div>
+            <h4 class="font-bold text-sm">图片文字提取</h4>
+            <p class="text-xs text-gray-400 mt-1">高精度OCR识别</p>
+          </div>
+          <div class="theme-bg p-4 rounded-xl shadow-sm theme-border text-center hover:shadow-md cursor-pointer transition hover:-translate-y-1">
+            <div class="w-12 h-12 bg-pink-100 text-pink-600 rounded-full flex items-center justify-center mx-auto mb-3 text-xl"><i class="fa fa-language"></i></div>
+            <h4 class="font-bold text-sm">图片翻译</h4>
+            <p class="text-xs text-gray-400 mt-1">擦除原字重写</p>
+          </div>
+          <div class="theme-bg p-4 rounded-xl shadow-sm theme-border text-center hover:shadow-md cursor-pointer transition hover:-translate-y-1">
+            <div class="w-12 h-12 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center mx-auto mb-3 text-xl"><i class="fa fa-globe"></i></div>
+            <h4 class="font-bold text-sm">网页内容抓取</h4>
+            <p class="text-xs text-gray-400 mt-1">提炼网页核心</p>
+          </div>
+          <div class="theme-bg p-4 rounded-xl shadow-sm theme-border text-center hover:shadow-md cursor-pointer transition hover:-translate-y-1">
+            <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-3 text-xl"><i class="fa fa-table"></i></div>
+            <h4 class="font-bold text-sm">表格转文本</h4>
+            <p class="text-xs text-gray-400 mt-1">图表数据结构化</p>
+          </div>
+          <div class="theme-bg p-4 rounded-xl shadow-sm theme-border text-center hover:shadow-md cursor-pointer transition hover:-translate-y-1">
+            <div class="w-12 h-12 bg-cyan-100 text-cyan-600 rounded-full flex items-center justify-center mx-auto mb-3 text-xl"><i class="fa fa-file-pdf-o"></i></div>
+            <h4 class="font-bold text-sm">文档处理</h4>
+            <p class="text-xs text-gray-400 mt-1">提取与格式转换</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <script>
+    let uploadedImages = []; // 存储上传的图片用于@调用
+
+    // 主题初始化与切换
+    function applyTheme(theme){
+      const body = document.getElementById('appBody');
+      if(!body) return;
+      body.classList.remove('theme-light','theme-dark');
+      if(theme === 'dark') body.classList.add('theme-dark');
+      else body.classList.add('theme-light');
+      localStorage.setItem('theme', theme);
+    }
+
+    function toggleTheme(){
+      const cur = localStorage.getItem('theme') || 'light';
+      applyTheme(cur === 'dark' ? 'light' : 'dark');
+    }
+
+    // 页面加载时应用已保存主题
+    (function(){
+      const saved = localStorage.getItem('theme') || 'light';
+      applyTheme(saved);
+    })();
+
+    // 如果本地已记住登录，直接展示主界面
+    if (localStorage.getItem('loggedIn') === 'true') {
+      const lm = document.getElementById('loginModal');
+      if (lm) lm.style.display = 'none';
+      const sb = document.getElementById('sidebar'); if (sb) sb.classList.remove('hidden');
+      const mc = document.getElementById('mainContent'); if (mc) mc.classList.remove('hidden');
+    }
+
+    function login() {
+      const user = document.getElementById('username').value.trim();
+      const pwd = document.getElementById('password').value;
+      const err = document.getElementById('loginError');
+      const btn = document.getElementById('loginBtn');
+      if (err) { err.classList.add('hidden'); err.textContent = ''; }
+
+      // 检查本地注册用户
+      const users = JSON.parse(localStorage.getItem('demo_users') || '{}');
+      const isValid = (users[user] && users[user] === pwd) || (user === 'admin' && pwd === '123456') || (user === '88888888' && pwd === '88888888');
+
+      btn && (btn.disabled = true);
+      setTimeout(() => {
+        btn && (btn.disabled = false);
+        if (isValid) {
+          localStorage.setItem('loggedIn', 'true');
+          document.getElementById('loginModal').style.display = 'none';
+          document.getElementById('sidebar').classList.remove('hidden');
+          document.getElementById('mainContent').classList.remove('hidden');
+        } else {
+          if (err) { err.textContent = '账号或密码错误，请重试。'; err.classList.remove('hidden'); }
+        }
+      }, 350);
+    }
+
+    // 显示/隐藏注册模态窗
+    function showRegisterModal(){
+      document.getElementById('registerModal').classList.remove('hidden');
+      document.getElementById('regError') && (document.getElementById('regError').classList.add('hidden'));
+      document.getElementById('regUsername').value = '';
+      document.getElementById('regPassword').value = '';
+      document.getElementById('regPassword2').value = '';
+    }
+
+    function hideRegisterModal(){
+      document.getElementById('registerModal').classList.add('hidden');
+    }
+
+    // 可选后端注册钩子：如果设置 window.REGISTER_API，则尝试 POST JSON {username,password}
+    async function submitRegisterToBackend(api, username, password){
+      try{
+        const res = await fetch(api, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        if(!res.ok) throw new Error('注册请求失败');
+        return await res.json();
+      }catch(e){
+        console.warn('后端注册失败：', e);
+        throw e;
+      }
+    }
+
+    // 提交注册（优先调用后端钩子；回退到本地存储）
+    async function submitRegister(){
+      const u = document.getElementById('regUsername').value.trim();
+      const p = document.getElementById('regPassword').value;
+      const p2 = document.getElementById('regPassword2').value;
+      const err = document.getElementById('regError');
+      const loading = document.getElementById('regLoading');
+      const btn = document.getElementById('regSubmitBtn');
+      if(err) { err.classList.add('hidden'); err.textContent = ''; }
+      if(loading) loading.classList.add('hidden');
+      if(btn) btn.disabled = false;
+
+      // 前端校验
+      if(!u || !p){ if(err){ err.textContent = '用户名与密码不能为空'; err.classList.remove('hidden'); } return; }
+      if(u.length < 3 || u.length > 32){ if(err){ err.textContent = '用户名长度需为3-32位'; err.classList.remove('hidden'); } return; }
+      if(p.length < 6 || p.length > 32){ if(err){ err.textContent = '密码长度需为6-32位'; err.classList.remove('hidden'); } return; }
+      if(p !== p2){ if(err){ err.textContent = '两次输入的密码不一致'; err.classList.remove('hidden'); } return; }
+
+      const api = window.REGISTER_API || localStorage.getItem('REGISTER_API');
+      if(loading) loading.classList.remove('hidden');
+      if(btn) btn.disabled = true;
+      try{
+        if(api){
+          await submitRegisterToBackend(api, u, p);
+        } else {
+          const users = JSON.parse(localStorage.getItem('demo_users') || '{}');
+          if(users[u]){ if(err){ err.textContent = '用户名已存在，请换一个'; err.classList.remove('hidden'); } if(loading) loading.classList.add('hidden'); if(btn) btn.disabled = false; return; }
+          users[u] = p;
+          localStorage.setItem('demo_users', JSON.stringify(users));
+        }
+        localStorage.setItem('loggedIn', 'true');
+        hideRegisterModal();
+        document.getElementById('sidebar').classList.remove('hidden');
+        document.getElementById('mainContent').classList.remove('hidden');
+      }catch(e){ if(err){ err.textContent = '注册失败，请稍后重试'; err.classList.remove('hidden'); } }
+      if(loading) loading.classList.add('hidden');
+      if(btn) btn.disabled = false;
+    }
+
+    // 回车提交支持
+    const pwdEl = document.getElementById('password');
+    const userEl = document.getElementById('username');
+    if (pwdEl) pwdEl.addEventListener('keypress', function (e) { if (e.key === 'Enter') login(); });
+    if (userEl) userEl.addEventListener('keypress', function (e) { if (e.key === 'Enter') login(); });
+
+    function switchPage(page, element) {
+      document.querySelectorAll('.page').forEach(item => item.classList.add('hidden'));
+      document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('nav-active'));
+      document.getElementById(`${page}-page`).classList.remove('hidden');
+      if (element) element.classList.add('nav-active');
+    }
+
+    // ============== 图像上传与 @ 功能 ==============
+    function previewImages() {
+      const files = document.getElementById('imgFileInput').files;
+      const list = document.getElementById('imagePreviewList');
+      
+      for(let file of files){
+        const idx = uploadedImages.length + 1;
+        const url = URL.createObjectURL(file);
+        uploadedImages.push({ id: idx, src: url, name: file.name });
+
+        const img = document.createElement('div');
+        img.className = 'relative group aspect-square rounded overflow-hidden border';
+        img.innerHTML = `
+          <img src="${url}" class="w-full h-full object-cover">
+          <div class="absolute top-0 left-0 bg-primary/90 text-white text-xs px-1.5 py-0.5 rounded-br font-mono">@${idx}</div>
+        `;
+        list.appendChild(img);
+      }
+    }
+
+    // 监听输入框 @ 符号
+    const promptInput = document.getElementById('promptInput');
+    const mentionMenu = document.getElementById('mentionMenu');
+
+    promptInput.addEventListener('input', function(e) {
+      const val = this.value;
+      if (val.endsWith('@')) {
+        showMentionMenu();
+      } else {
+        mentionMenu.classList.add('hidden');
+      }
+    });
+
+    function showMentionMenu() {
+      if(uploadedImages.length === 0) {
+        mentionMenu.innerHTML = `<div class="p-2 text-sm text-gray-500 text-center">暂未上传参考图</div>`;
+      } else {
+        mentionMenu.innerHTML = uploadedImages.map(img => `
+          <div onclick="insertMention(${img.id})" class="p-2 hover:bg-blue-50 cursor-pointer flex items-center gap-2 border-b last:border-0 transition">
+            <img src="${img.src}" class="w-8 h-8 object-cover rounded">
+            <span class="text-sm font-bold text-gray-700">@${img.id}</span>
+            <span class="text-xs text-gray-400 truncate w-24">${img.name}</span>
+          </div>
+        `).join('');
+      }
+      mentionMenu.classList.remove('hidden');
+    }
+
+    function insertMention(id) {
+      const val = promptInput.value;
+      // 替换最后一个 @ 为 @ID加上空格
+      promptInput.value = val.slice(0, -1) + `@${id} `; 
+      mentionMenu.classList.add('hidden');
+      promptInput.focus();
+    }
+
+    // ============== 图像生成逻辑 ==============
+    function startGenerate() {
+      const queue = document.getElementById('generateQueue');
+      const countInput = document.getElementById('genCount').value;
+      let count = parseInt(countInput) || 1;
+      
+      // 限制1-10张
+      if(count < 1) count = 1;
+      if(count > 10) count = 10;
+      document.getElementById('genCount').value = count;
+
+      queue.innerHTML = "";
+      for(let i=0; i<count; i++){
+        const timestamp = new Date().getTime() + i;
+        const item = document.createElement('div');
+        item.className = "aspect-square rounded-lg overflow-hidden border-2 border-transparent hover:border-primary transition cursor-pointer relative group";
+        item.innerHTML = `
+          <div class="absolute inset-0 bg-gray-100 flex items-center justify-center animate-pulse"><i class="fa fa-spinner fa-spin text-gray-400"></i></div>
+          <img src="https://picsum.photos/400/400?random=${timestamp}" onload="this.previousElementSibling.remove()" class="w-full h-full object-cover relative z-10" onclick="showBigImage(this.src, this)">
+        `;
+        queue.appendChild(item);
+      }
+    }
+
+    function showBigImage(src, element) {
+      document.getElementById('bigImage').src = src;
+      document.getElementById('bigImage').classList.remove('hidden');
+      document.getElementById('bigPreviewText').classList.add('hidden');
+      
+      document.querySelectorAll('#generateQueue div').forEach(el => el.classList.remove('border-primary'));
+      element.parentElement.classList.add('border-primary');
+    }
+  </script>
+</body>
+</html>
